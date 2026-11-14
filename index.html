@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maya Empire Gold Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: step viewer. Timeline rail on the left, one step at a time on the right, prev/next at the bottom. */
+:root{
+  --bg:#eef1ec;          /* limestone */
+  --panel:#ffffff;
+  --ink:#1d2a24;          /* obsidian green-black */
+  --muted:#5d6c64;
+  --line:#d5ddd6;
+  --jade:#1f7a5a;         /* accent */
+  --jade-soft:#dcefe6;
+  --gold:#b8860b;
+  --gold-soft:#f6ecd2;
+  --warn:#b4432a;
+  --warn-soft:#f8e1da;
+  --display:"Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121815; --panel:#1a221e; --ink:#e6ece8; --muted:#9db0a6; --line:#2c3833;
+    --jade:#4cc296; --jade-soft:#1d3a2f; --gold:#e3b54a; --gold-soft:#372e17;
+    --warn:#f08a6e; --warn-soft:#3d221b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121815; --panel:#1a221e; --ink:#e6ece8; --muted:#9db0a6; --line:#2c3833;
+  --jade:#4cc296; --jade-soft:#1d3a2f; --gold:#e3b54a; --gold-soft:#372e17;
+  --warn:#f08a6e; --warn-soft:#3d221b; color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;display:flex;flex-direction:column}
+a{color:var(--jade)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--jade);color:#fff;flex:0 0 auto}
+header h1{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.02em;margin:0;flex:1;text-wrap:balance}
+header .src{font-size:14px;opacity:.9}
+header .src a{color:#fff}
+.icon-btn{background:transparent;border:1px solid rgba(255,255,255,.45);border-radius:8px;padding:6px 10px;color:#fff;cursor:pointer;display:none}
+
+.app{flex:1;display:grid;grid-template-columns:320px 1fr;min-height:0}
+nav{border-right:1px solid var(--line);background:var(--panel);overflow-y:auto;min-height:0}
+nav .rail-head{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:14px 16px 6px}
+nav ol{list-style:none;margin:0;padding:0 0 16px}
+nav li button{display:grid;grid-template-columns:28px 22px 1fr;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:transparent;padding:8px 16px;cursor:pointer;font-size:15px;line-height:1.3}
+nav li button:hover{background:var(--jade-soft)}
+nav li button[aria-current="step"]{background:var(--jade-soft);font-weight:700}
+nav .num{width:26px;height:26px;border-radius:50%;background:var(--gold-soft);color:var(--ink);display:grid;place-items:center;font-size:12px;font-variant-numeric:tabular-nums}
+nav li button[aria-current="step"] .num{background:var(--jade);color:#fff}
+nav .phase{font-family:var(--display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);padding:12px 16px 2px}
+.ico{width:20px;height:20px;color:var(--muted)}
+
+main{overflow-y:auto;min-height:0;position:relative}
+.stage{max-width:820px;margin:0 auto;padding:22px 20px 110px;display:flex;flex-direction:column;gap:16px}
+.crumbs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--panel)}
+.chip.type-note{background:var(--gold-soft);border-color:transparent}
+.chip.type-research{background:var(--jade-soft);border-color:transparent}
+.chip.type-build,.chip.type-layout{background:var(--jade-soft);border-color:transparent}
+.chip.type-warn{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip .ico{width:16px;height:16px;color:currentColor}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h2{font-family:var(--display);font-weight:700;font-size:34px;line-height:1.1;margin:0 0 6px;text-wrap:balance}
+.card .lede{color:var(--muted);margin:0 0 14px;max-width:65ch}
+.card h3{font-family:var(--display);font-weight:600;font-size:21px;margin:18px 0 6px}
+.card p,.card li{max-width:65ch}
+.card ul,.card ol{padding-left:22px;margin:8px 0}
+.card li{margin:5px 0}
+.callout{border-left:4px solid var(--gold);background:var(--gold-soft);padding:10px 14px;border-radius:0 10px 10px 0;margin:12px 0}
+.callout.warn{border-color:var(--warn);background:var(--warn-soft)}
+.callout.jade{border-color:var(--jade);background:var(--jade-soft)}
+.callout strong{display:block;font-family:var(--display);font-size:17px;letter-spacing:.03em}
+.watch{display:inline-flex;gap:8px;align-items:center;text-decoration:none;font-weight:700;border:1px solid var(--jade);color:var(--jade);border-radius:10px;padding:8px 14px;margin-top:6px}
+.watch:hover{background:var(--jade-soft)}
+
+/* research path */
+.path{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}
+.path span.node{background:var(--jade-soft);border:1px solid var(--jade);border-radius:8px;padding:4px 10px;font-weight:600;font-size:15px}
+.path span.node.skip{background:var(--warn-soft);border-color:var(--warn);text-decoration:line-through}
+.path span.node.later{background:transparent;border-style:dashed}
+.path span.arrow{color:var(--muted)}
+
+table{border-collapse:collapse;width:100%;font-size:15px}
+.tablewrap{overflow-x:auto}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{font-family:var(--display);font-size:15px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:14px;color:var(--muted)}
+
+.nav-btns{position:fixed;bottom:16px;right:16px;left:336px;display:flex;justify-content:space-between;pointer-events:none}
+.nav-btns button{pointer-events:auto;display:flex;align-items:center;gap:8px;border:0;border-radius:999px;background:var(--jade);color:#fff;padding:12px 18px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.nav-btns button[disabled]{opacity:.35;cursor:default}
+.counter{pointer-events:auto;align-self:center;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:14px;font-variant-numeric:tabular-nums}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  nav{display:none;position:fixed;inset:52px 0 0 0;z-index:5;border-right:0}
+  body.rail-open nav{display:block}
+  .icon-btn{display:inline-block}
+  header .src{display:none}
+  .nav-btns{left:16px}
+  .card{padding:18px 16px}
+  .card h2{font-size:28px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .card{animation:in .18s ease-out}
+  @keyframes in{from{transform:translateY(4px)}to{transform:none}}
+}
+</style>
+</head>
+<body>
+<header>
+  <button class="icon-btn" id="railBtn" aria-controls="rail" aria-expanded="false">Steps</button>
+  <h1>Maya Empire: Gold (Top 1%) F2P Guide</h1>
+  <div class="src">From <a href="https://www.youtube.com/watch?v=5eOxE69uYAI">TazzDevilTV's video</a></div>
+</header>
+<div class="app">
+  <nav id="rail" aria-label="Guide steps">
+    <div class="rail-head">Timeline</div>
+    <ol id="list"></ol>
+  </nav>
+  <main id="main">
+    <div class="stage" id="stage"></div>
+  </main>
+</div>
+<div class="nav-btns">
+  <button id="prev" aria-label="Previous step">&#8592; Back</button>
+  <span class="counter" id="counter"></span>
+  <button id="next" aria-label="Next step">Next &#8594;</button>
+</div>
+
+<script>
+const VID = "https://www.youtube.com/watch?v=5eOxE69uYAI&t=";
+const ICONS = {
+  intro:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/></svg>',
+  note:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7"/></svg>',
+  research:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3h6M10 3v6L4 20h16L14 9V3"/></svg>',
+  build:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="10" width="8" height="11"/><rect x="3" y="13" width="8" height="8"/></svg>',
+  warn:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18v.5"/></svg>',
+  result:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="6"/><path d="M8 14l-2 7 6-3 6 3-2-7"/></svg>'
+};
+const TYPE_LABEL = {intro:"Start",note:"Notes",research:"Research",build:"Layout / build",warn:"Warning",result:"Result"};
+const ts = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+const watch = (s,label) => `<a class="watch" href="${VID}${s}s">&#9654; Watch at ${ts(s)}${label?" · "+label:""}</a>`;
+
+const STEPS = [
+/* ---------------- START ---------------- */
+{phase:"Start", type:"intro", title:"Maya Empire (Chichen Itza)", t:0, html:`
+<p class="lede">A step-by-step version of TazzDevilTV's free-to-play run that reached <b>level 32</b> and finished <b>Gold (top 1%)</b> without spending gems.</p>
+<div class="stats">
+  <div class="stat"><b>Lvl 32</b><span>reached with 18 min left</span></div>
+  <div class="stat"><b>1,032</b><span>boxes at the end</span></div>
+  <div class="stat"><b>946+</b><span>boxes needed for Gold</span></div>
+  <div class="stat"><b>0</b><span>gems spent</span></div>
+</div>
+<div class="callout jade"><strong>How this guide was made</strong>The first 5 minutes of the video are narrated (the 7 key rules). After that the gameplay runs to music, so the steps here come from the on-screen captions, the level/time stamps, and what is visible in the footage. Every step links to the moment in the video so you can check the exact building positions.</div>
+<p>Source: <a href="https://www.youtube.com/watch?v=5eOxE69uYAI">"ALL YOU NEED TO KNOW to Hit Gold (1%) in MAYA AC"</a> by TazzDevilTV (Sept 2026, 27:15).</p>
+${watch(0,"intro")}`},
+
+{phase:"Start", type:"note", title:"Pace check: where you should be", t:313, html:`
+<p class="lede">The video stamps the level and time left on screen. Use this to see if you're on pace. The event runs about 5 days.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Level</th><th>Time left</th><th>What's happening</th></tr></thead>
+<tbody>
+<tr><td>0 → 2</td><td>~5d</td><td>Opening, first expansions toward the springs</td></tr>
+<tr><td>11</td><td>4d 17h</td><td>Switch to Ritual Daggers</td></tr>
+<tr><td>13</td><td>4d 12h</td><td>Sayil Palace phase 2, happiness-quest bug</td></tr>
+<tr><td>15</td><td>4d 02h</td><td>Final layout up to level 17</td></tr>
+<tr><td>17</td><td>3d 20h</td><td>New expansions</td></tr>
+<tr><td>19</td><td>3d 03h</td><td>Level 5 homes on the hotspot</td></tr>
+<tr><td>19</td><td>3d 01h</td><td>Aviary + Outfitter switch</td></tr>
+<tr><td>24</td><td>2d 03h</td><td>Last expansions open</td></tr>
+<tr><td>24</td><td>2d 00h</td><td>Second Ritual Carver</td></tr>
+<tr><td>25</td><td>1d 17h</td><td>Make room for a second Outfitter</td></tr>
+<tr><td>26</td><td>1d 14h</td><td>5th and last Aviary</td></tr>
+<tr><td>28</td><td>19h 05m</td><td>Second Outfitter running</td></tr>
+<tr><td>29</td><td>13h 34m</td><td>Final layout</td></tr>
+<tr><td>30</td><td>4h 31m</td><td></td></tr>
+<tr><td>31</td><td>1h 44m</td><td>Final sprint starts</td></tr>
+<tr><td>32</td><td>0h 18m</td><td>Done</td></tr>
+</tbody></table></div>
+<p>The narrator also says he was almost 100 boxes ahead of the Gold line with 12 minutes to go. Maya boxes are expensive, so that's a big lead.</p>`},
+
+/* ---------------- 7 KEY RULES ---------------- */
+{phase:"The 7 key rules", type:"note", title:"Rule 1: The map always changes", t:28, html:`
+<p class="lede">The Maya map is different in every Allied Culture event. The culture sites (springs and temples) won't be in the same places as in the video.</p>
+<ul>
+<li>Don't copy building coordinates blindly. Copy the <b>idea</b>: find your springs first, then build around them.</li>
+<li>Before placing anything big, scout the whole map and note where every spring sits.</li>
+</ul>
+${watch(28)}`},
+
+{phase:"The 7 key rules", type:"note", title:"Rule 2: Find the 2 springs next to each other", t:45, html:`
+<p class="lede">There are two kinds of culture site. Only one kind matters for a free-to-play run.</p>
+<ul>
+<li><b>Crystal Spring</b>: upgradeable with event resources. These are the ones you want.</li>
+<li><b>Magma Temple</b>: only upgradeable with gems. Ignore it.</li>
+</ul>
+<p>Look for the <b>two Crystal Springs that sit close together</b>. Write down where they are. Your first expansions should go toward them.</p>
+${watch(45)}`},
+
+{phase:"The 7 key rules", type:"note", title:"Rule 3: Identify all your hotspots", t:84, html:`
+<p class="lede">A hotspot is a tile area where the boost zones of two springs overlap. Buildings there get both boosts.</p>
+<ul>
+<li>Where the two close springs overlap, you can reach about <b>500% boost</b>, and <b>600%</b> if you get a spring to level 6, as he did.</li>
+<li>Single-spring areas cap at about <b>400%</b>.</li>
+<li>Maya is all about putting your biggest boost on the buildings that make the <b>finished product</b>.</li>
+</ul>
+<div class="callout"><strong>Expect Tetris</strong>For 5 days you will keep moving buildings in and out of these hotspots.</div>
+${watch(84)}`},
+
+{phase:"The 7 key rules", type:"note", title:"Rule 4: Rush and play around your key spot", t:150, html:`
+<p class="lede">If you manage the main hotspot well, it fits <b>five finished-product buildings</b>. This is the key spot for all your production.</p>
+<ul>
+<li>Rush the expansions that open the area around the two close springs.</li>
+<li>Prioritise those expansions over everything else early on.</li>
+</ul>
+${watch(150)}`},
+
+{phase:"The 7 key rules", type:"note", title:"Rule 5: Play on the edges", t:165, html:`
+<p class="lede">Placement on the edge of a boost zone decides whether a spring boosts one building or two.</p>
+<ul>
+<li>Example from the video: swapping two buildings with the same footprint changed the boost from covering one building to covering both.</li>
+<li>Check each spring's edge and try to get every tile of its area covered by a building that benefits.</li>
+<li>Do this across the whole map and the extra boost adds up a lot.</li>
+</ul>
+${watch(161)}`},
+
+{phase:"The 7 key rules", type:"note", title:"Rule 6: Go for level 6 housing", t:219, html:`
+<p class="lede">This one is specific to Maya. You don't need it in other Allied Cultures.</p>
+<ul>
+<li>Rush the research that unlocks <b>level 6 homes</b>, then upgrade your homes.</li>
+<li>You need the extra income, including to finish the quest that rewards researching all the techs.</li>
+</ul>
+${watch(219)}`},
+
+{phase:"The 7 key rules", type:"note", title:"Rule 7: Always put the boost on your highest level", t:255, html:`
+<p class="lede">Keep repositioning. Your best boost should always sit on your highest-level buildings.</p>
+<ul>
+<li>When a home goes from level 5 to level 6, move the new level 6 home into the hotspot.</li>
+<li>A hotspot covering a low-level building means you're wasting boost.</li>
+</ul>
+${watch(255)}`},
+
+/* ---------------- LEVEL 0-2 ---------------- */
+{phase:"Levels 0 – 2", type:"build", title:"Opening moves", t:326, html:`
+<p class="lede">Get the first productions running and spend the starting resources.</p>
+<ol>
+<li>Collect from the City Hall.</li>
+<li>Start production in the <b>Jade Quarry</b> and the <b>Mask Sculptor</b>.</li>
+<li>Build <b>Worker Homes</b> with the starting coins.</li>
+<li>Use the first expansions to start opening toward your two close Crystal Springs (rule 2).</li>
+</ol>
+<p>In the video the first expansion reveals the springs: two springs near the town centre form the hotspot he builds the Mask Sculptor beside.</p>
+${watch(326)}`},
+
+{phase:"Levels 0 – 2", type:"research", title:"Early research and quests", t:420, html:`
+<p class="lede">The first questline helps you level fast.</p>
+<ul>
+<li>Quest "Forgotten Shrines of Power": have <b>1 Crystal Spring at level 2</b> (or 1 Magma Temple at level 2). Pick the <b>Crystal Spring</b>.</li>
+<li>Quest "Forging Imperial Alliances": research <b>9 technologies</b> and have <b>8 buildings at level 2</b>.</li>
+<li>Upgrade the Crystal Spring next to your production as soon as you can.</li>
+</ul>
+${watch(420)}`},
+
+/* ---------------- LEVEL 2-7 ---------------- */
+{phase:"Levels 2 – 7", type:"build", title:"Keep 1 expansion for the 2nd spring", t:515, html:`
+<div class="callout"><strong>From the video</strong>"Keep 1 expansion for 2nd Spring opening."</div>
+<ul>
+<li>Don't spend every expansion right away. Hold one so you can open the area with the <b>second Crystal Spring</b> as soon as it's available.</li>
+<li>Keep production running in the quarries and the Mask Sculptor while you wait.</li>
+</ul>
+${watch(515)}`},
+
+{phase:"Levels 2 – 7", type:"build", title:"Upgrade homes and start the Tetris", t:685, html:`
+<ul>
+<li>Next quest: research <b>10 technologies</b> and have <b>8 Worker Homes at level 3</b>.</li>
+<li>Once the second spring is open, start rearranging: production on the overlap, homes around it.</li>
+</ul>
+<div class="callout"><strong>From the video</strong>"And now the Tetris starts."</div>
+${watch(685)}`},
+
+/* ---------------- LEVEL 7-13 ---------------- */
+{phase:"Levels 7 – 13", type:"research", title:"Research: Chocolate Making → Ritual Daggers", t:775, html:`
+<p class="lede">The research tree at this point, as shown in the video.</p>
+<div class="path">
+  <span class="node">Chocolate Making</span><span class="arrow">→</span>
+  <span class="node">Ritual Daggers</span><span class="arrow">→</span>
+  <span class="node">Jade Deposits</span>
+  <span class="node skip">Sacrificial Offerings</span>
+  <span class="node skip">Obsidian Deposits</span>
+  <span class="node">Craftsmen Schooling</span>
+</div>
+<p>He puts a red cross over the middle of that column (Sacrificial Offerings and Obsidian Deposits), so leave those for later. Then the tree continues to <b>Maya Glyphs</b>, <b>Sacred Shrines</b>, and <b>State Laws</b>.</p>
+${watch(775)}`},
+
+{phase:"Levels 7 – 13", type:"build", title:"Upgrade all homes before Ritual Daggers", t:781, html:`
+<div class="callout"><strong>From the video</strong>"Upgrade all home before going for Ritual Dagger."</div>
+<ul>
+<li>Upgrade all <b>11 Worker Homes</b> first.</li>
+<li>Put each freshly upgraded home on a <b>hotspot</b> (rule 7).</li>
+<li>Don't build the Ritual Carver yet. He shows it as "Not building ritual carver yet!"</li>
+</ul>
+${watch(781)}`},
+
+{phase:"Levels 7 – 13", type:"build", title:"Ritual Dagger switch (level 11)", t:881, html:`
+<p class="lede">At <b>level 11 with 4d 17h left</b>: "Now it's time for Ritual dagger!"</p>
+<ul>
+<li>Build the <b>Ritual Carver</b> and put it in the hotspot.</li>
+<li>Keep the Mask Sculptor and Chronicler producing.</li>
+</ul>
+${watch(881)}`},
+
+/* ---------------- LEVEL 13-17 ---------------- */
+{phase:"Levels 13 – 17", type:"build", title:"Sayil Palace and new expansions", t:913, html:`
+<p class="lede">Level 13 with 4d 12h left.</p>
+<ul>
+<li>Finish Sayil Palace phase 2.</li>
+<li>Open the next expansions and add more homes around the springs.</li>
+</ul>
+${watch(913)}`},
+
+{phase:"Levels 13 – 17", type:"warn", title:"Bug alert: happiness quest", t:965, html:`
+<div class="callout warn"><strong>Bug</strong>The quest "Have 10 buildings in Maya Empire on happiness level ... or higher" doesn't count all your happy buildings. He had 5 happy buildings and the quest only counted 2.</div>
+<p><b>Workaround shown:</b> place a low-level house so the quest updates and unlocks ("House low level to unlock quest!"). Then carry on.</p>
+${watch(965)}`},
+
+{phase:"Levels 13 – 17", type:"build", title:"Final layout up to level 17", t:999, html:`
+<p class="lede">Level 15 with 4d 02h left. This layout carries you to level 17.</p>
+<ul>
+<li>Two springs on top of each other make the main hotspot. Fill it with your finished-product buildings.</li>
+<li>Homes fill the remaining boosted tiles.</li>
+</ul>
+<p>Pause the video here to copy the shape. Remember your springs may be in different places (rule 1).</p>
+${watch(999,"layout")}`},
+
+{phase:"Levels 13 – 17", type:"research", title:"Research after State Laws", t:1010, html:`
+<div class="path">
+  <span class="node">State Laws</span><span class="arrow">→</span>
+  <span class="node">Better Jade Extraction</span>
+  <span class="node">Better Obsidian Extraction</span>
+  <span class="node later">Curative Rituals</span>
+  <span class="node later">Birdkeeping</span>
+</div>
+<p>He takes <b>Better Jade Extraction</b> and <b>Better Obsidian Extraction</b> first (highlighted in the video), then <b>Nature Spirits</b>. After that the tree opens to Headdress Craft, Shamanism, Solar Rituals, Aviculture, and Astral Rituals.</p>
+${watch(1010)}`},
+
+/* ---------------- LEVEL 17-24 ---------------- */
+{phase:"Levels 17 – 24", type:"build", title:"Level 5 homes on the hotspot", t:1062, html:`
+<p class="lede">Level 19 with 3d 03h left.</p>
+<ul>
+<li>Put your <b>level 5 homes on the hotspot</b>.</li>
+<li>Swap hotspot use as your needs change, homes when you need coins and production when you need goods. He shows this as "And swap hot spot according to your needs!!"</li>
+<li>For scale: a level 4 production building with the boost made <b>28,632</b>.</li>
+</ul>
+${watch(1062)}`},
+
+{phase:"Levels 17 – 24", type:"build", title:"Aviary and Outfitter switch", t:1090, html:`
+<div class="callout"><strong>From the video</strong>"Only 2 more Home to upgrade. I'll delete 8."</div>
+<p>Final layout up to level 24 (level 19, 3d 01h left):</p>
+<ul>
+<li><b>−8 homes</b></li>
+<li><b>+2 Aviaries</b></li>
+<li><b>+1 Ceremony Outfitter</b></li>
+</ul>
+${watch(1093,"layout")}`},
+
+/* ---------------- LEVEL 24+ ---------------- */
+{phase:"Levels 24+", type:"build", title:"Open the last expansions", t:1120, html:`
+<p class="lede">Level 24 with 2d 03h left.</p>
+<ul>
+<li>Fill your homes so you get expansion currency faster ("Full home to get expansion faster!").</li>
+<li>Maya's last expansions are cheap and quick, so unlock as many as you can.</li>
+<li>Keep repositioning to get the max boost.</li>
+</ul>
+${watch(1120)}`},
+
+{phase:"Levels 24+", type:"build", title:"Second Ritual Carver", t:1219, html:`
+<p class="lede">Level 24 with 2d 00h left. Build a <b>second Ritual Carver</b> in the hotspot.</p>
+<ul>
+<li>Tetris mode is on. Make room by moving homes out.</li>
+<li>Always move a freshly levelled home onto a boosted tile.</li>
+</ul>
+${watch(1219)}`},
+
+{phase:"Levels 24+", type:"build", title:"Make room for a second Outfitter", t:1272, html:`
+<p class="lede">Level 25 with 1d 17h left.</p>
+<ul>
+<li>Clear a spot in the hotspot for a <b>second Ceremony Outfitter</b>.</li>
+<li>Upgrade <b>Craftsman Homes to level 6</b> too.</li>
+<li>A 50-minute upgrade takes that building out of the boost while it runs, so time upgrades with that in mind.</li>
+</ul>
+${watch(1272)}`},
+
+{phase:"Levels 24+", type:"build", title:"5th and last Aviary", t:1312, html:`
+<p class="lede">Level 26 with 1d 14h left. Build your <b>5th and last Aviary</b>.</p>
+${watch(1312)}`},
+
+{phase:"Levels 24+", type:"build", title:"Second Outfitter running", t:1373, html:`
+<p class="lede">Level 28. Both Ceremony Outfitters produce from the hotspot.</p>
+${watch(1373)}`},
+
+{phase:"Levels 24+", type:"research", title:"Late research (level 27 – 29)", t:1392, html:`
+<p class="lede">By level 28 (19h 05m left) almost the whole tree is done.</p>
+<div class="path">
+  <span class="node">Advanced Jade Mining</span>
+  <span class="node">Advanced Obsidian Mining</span>
+  <span class="node">Astral Alignment</span><span class="arrow">→</span>
+  <span class="node">Feather Mastery</span><span class="arrow">→</span>
+  <span class="node">Divine Ascension</span>
+  <span class="node">Xocolatl Virtuoso</span><span class="arrow">→</span>
+  <span class="node">Jade / Ritual / Obsidian Mastery</span>
+</div>
+<p>Last column: he finishes <b>Perfected Headdresses</b> and <b>Spiritual Ancestry</b>. <b>Dagger Perfection</b> and <b>Maya Consensus</b> are left for last.</p>
+${watch(1392)}`},
+
+{phase:"Final layout", type:"build", title:"Final layout (income)", t:1406, html:`
+<p class="lede">The end-game layout that maximises income.</p>
+<ul>
+<li>Finished-product buildings (Ritual Carvers, Ceremony Outfitters) sit on the overlapped springs.</li>
+<li>Highest-level homes take the remaining boosted tiles.</li>
+</ul>
+${watch(1406,"layout")}`},
+
+{phase:"Final layout", type:"build", title:"Final layout (villager count)", t:1443, html:`
+<p class="lede">Level 29 with 13h 34m left. A second version of the final layout, built to maximise villagers.</p>
+<ul>
+<li>"Tetrising for 1 extra home!" Squeeze in one more home wherever the footprint allows.</li>
+</ul>
+${watch(1443,"layout")}`},
+
+{phase:"Final layout", type:"build", title:"Level 31: prepare the final sprint", t:1485, html:`
+<p class="lede">Level 31 with 1h 44m left: "Preparing final sprint! 1h44 to get Lvl 32."</p>
+<ul>
+<li>Line up production so everything finishes before the event ends.</li>
+<li>Have the resources ready for the last upgrades.</li>
+</ul>
+${watch(1485)}`},
+
+{phase:"Final layout", type:"build", title:"Final sprint", t:1508, html:`
+<ol>
+<li>Collect everything and push all remaining upgrades and productions.</li>
+<li>Run the last Ceremony Outfitter batch.</li>
+<li>Hit level 32 with 18 minutes left.</li>
+</ol>
+${watch(1508)}`},
+
+{phase:"Final layout", type:"result", title:"Results", t:1607, html:`
+<div class="stats">
+  <div class="stat"><b>1,032</b><span>boxes</span></div>
+  <div class="stat"><b>Gold</b><span>Top 1% tier</span></div>
+  <div class="stat"><b>946+</b><span>Gold threshold</span></div>
+  <div class="stat"><b>802+</b><span>Silver (top 5%)</span></div>
+</div>
+<p>Gold rewards shown: 2 items, 15,000 of one resource, 8 of another, and 15 potions. Silver: 7,500, 4 and 10.</p>
+<p>Questions? The creator answers in the comments and on his Discord (link in the video description).</p>
+${watch(1607)}`}
+];
+
+const list = document.getElementById("list");
+const stage = document.getElementById("stage");
+const prev = document.getElementById("prev");
+const next = document.getElementById("next");
+const counter = document.getElementById("counter");
+let cur = 0, lastPhase = null;
+
+STEPS.forEach((s,i)=>{
+  if(s.phase!==lastPhase){
+    const ph=document.createElement("li"); ph.className="phase"; ph.textContent=s.phase; ph.setAttribute("aria-hidden","true");
+    list.appendChild(ph); lastPhase=s.phase;
+  }
+  const li=document.createElement("li");
+  const b=document.createElement("button");
+  b.innerHTML=`<span class="num">${i+1}</span>${ICONS[s.type]}<span>${s.title}</span>`;
+  b.addEventListener("click",()=>{go(i);document.body.classList.remove("rail-open");railBtn.setAttribute("aria-expanded","false");});
+  li.appendChild(b); list.appendChild(li); s.btn=b;
+});
+
+function go(i){
+  cur=Math.max(0,Math.min(STEPS.length-1,i));
+  const s=STEPS[cur];
+  stage.innerHTML=`<div class="crumbs"><span class="chip type-${s.type}">${ICONS[s.type]}${TYPE_LABEL[s.type]}</span><span>${s.phase}</span><span>· video ${ts(s.t)}</span></div>
+  <article class="card"><h2>${s.title}</h2>${s.html}</article>`;
+  STEPS.forEach((x,j)=> j===cur ? x.btn.setAttribute("aria-current","step") : x.btn.removeAttribute("aria-current"));
+  prev.disabled=cur===0; next.disabled=cur===STEPS.length-1;
+  counter.textContent=`${cur+1} / ${STEPS.length}`;
+  document.getElementById("main").scrollTop=0;
+  STEPS[cur].btn.scrollIntoView({block:"nearest"});
+  const h="step-"+(cur+1);
+  if(location.hash.slice(1)!==h){ try{history.replaceState(null,"","#"+h);}catch(e){} }
+}
+prev.onclick=()=>go(cur-1);
+next.onclick=()=>go(cur+1);
+document.addEventListener("keydown",e=>{
+  if(e.target.closest("input,textarea")) return;
+  if(e.key==="ArrowRight") go(cur+1);
+  if(e.key==="ArrowLeft") go(cur-1);
+});
+const railBtn=document.getElementById("railBtn");
+railBtn.onclick=()=>{const o=document.body.classList.toggle("rail-open");railBtn.setAttribute("aria-expanded",String(o));};
+function fromHash(){const m=location.hash.match(/^#step-(\d+)$/);go(m?parseInt(m[1],10)-1:0);}
+window.addEventListener("hashchange",fromHash);
+fromHash();
+</script>
+</body>
+</html>
